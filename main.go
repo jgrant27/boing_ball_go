@@ -30,7 +30,7 @@ var (
 )
 
 func main() {
-	defer sdl.Init(sdl.INIT_EVERYTHING)
+	sdl.Init(sdl.INIT_EVERYTHING)
 
 	window, _ = sdl.CreateWindow("Amiga Boing Ball", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, 640, 512, sdl.WINDOW_OPENGL)
 	render, _ = sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED|sdl.RENDERER_PRESENTVSYNC|sdl.RENDERER_TARGETTEXTURE)
@@ -76,8 +76,8 @@ func sync_framerate(start_ticks uint32) {
 }
 
 func clear_background() {
-	defer render.SetDrawColor(170, 170, 170, 255) // light gray
-	defer render.Clear()
+	render.SetDrawColor(170, 170, 170, 255) // light gray
+	render.Clear()
 }
 
 func do_physics() {
@@ -106,6 +106,32 @@ func draw_shadow(points Sphere) {
 }
 
 func draw_wireframe() {
+	render.SetDrawColor(183, 45, 168, 255) // purple
+	render.SetScale(1, 1)
+
+	var is = make([]int, 13)[:13]
+	for i := range is {
+		y := int32(i * 36)
+		render.DrawLine(50, y, 590, y)
+	}
+
+	is = make([]int, 16)[:16]
+	for i := range is {
+		x := int32(50 + i*36)
+		render.DrawLine(x, 0, x, 432)
+	}
+
+	for i := range is {
+		render.DrawLine(int32(50+i*36), 432, int32(float32(i)*42.66), 480)
+	}
+
+	ys := []int{442, 454, 468}
+	is = make([]int, 3)[:3]
+	for i := range is {
+		y := ys[i]
+		x1 := 50.0 - 50.0*(float32(y)-432.0)/(480.0-432.0)
+		render.DrawLine(int32(x1), int32(y), int32(640-x1), int32(y))
+	}
 
 }
 
