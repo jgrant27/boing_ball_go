@@ -7,7 +7,7 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-type Point [2]float32
+type Point [2]float64
 type Sphere = [10][10]Point
 
 const (
@@ -81,11 +81,53 @@ func clear_background() {
 }
 
 func do_physics() {
+	phase_shift := dp
+	if right {
+		phase_shift = 45.0 - dp
+	}
+	phase = math.Mod(phase+phase_shift, 45.0)
+	if right {
+		x += dx
+	} else {
+		x -= dx
+	}
+	if x >= 505 {
+		right = false
+	} else if x <= 135 {
+		right = true
+	}
+	y_ang = math.Mod((y_ang + 1.5), 360.0)
+	y = 350.0 - 200.0*math.Abs(math.Cos(y_ang*math.Pi/180.0))
+}
 
+func get_lat(phase float64, i int) float64 {
+	if i == 0 {
+		return -90.0
+	} else if i == 9 {
+		return 90.0
+	} else {
+		return -90.0 + phase + (float64(i)-1.0)*22.5
+	}
 }
 
 func calc_points(phase float64) Sphere {
-	return Sphere{}
+	points := Sphere{}
+	sin_lat := make([]float64, 10)[:10]
+	for i := 0; i < len(sin_lat); i++ {
+		lat := get_lat(phase, i)
+		sin_lat[i] = math.Sin(lat * math.Pi / 180.0)
+	}
+	for j := 0; j < len(sin_lat)-1; j++ {
+		lon := -90.0 + float64(j)*22.5
+		y := math.Sin(lon * math.Pi / 180.0)
+		l := math.Cos(lon * math.Pi / 180.0)
+		for i := 0; i < len(sin_lat); i++ {
+			x := sin_lat[i] * l
+			points[i][j] = Point{x, y}
+		}
+	}
+
+	return points
 }
 
 func transform(points Sphere, s float64, tx float64, ty float64) {
@@ -102,6 +144,23 @@ func scale_and_translate(points Sphere, s float64, tx float64, ty float64) {
 }
 
 func draw_shadow(points Sphere) {
+	// var polyX, polyY: array[0..16, int16]
+
+	// for i in 0..8:
+	//	let p = points[0][i]
+	//	polyX[i] = int16(p[0]) + 50
+	//	polyY[i] = int16(p[1])
+	// for i in 0..8:
+	//	let p = points[9][8 - i]
+	//	polyX[7 + i] = int16(p[0]) + 50
+	//	polyY[7 + i] = int16(p[1])
+
+	//	var //gray
+	//	r: uint8 = 102
+	//	g: uint8 = 102
+	//	b: uint8 = 102
+	// gfx.filledPolygonRGBA(render,
+	//	  vx = addr(polyX[0]), vy = addr(polyY[0]), n = 15, r, g, b, 255)
 
 }
 
