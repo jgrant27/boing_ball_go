@@ -1,2 +1,2 @@
-# boing_ball_go
-Amiga Boing Ball in Go !
+# Amiga Boing Ball in Go !
+
